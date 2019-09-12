@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ScarlettBeautyLab.Models;
 using ScarlettBeautyLab.Services;
@@ -25,6 +26,14 @@ namespace ScarlettBeautyLab.Controllers
             //TODO: Authorization check. Is the user an admin?
             var users = await _userService.GetUsersAsync();
             return users;
+        }
+
+        [Authorize]
+        [HttpGet("api/[controller]/currentuser", Name = nameof(GetCurrentUser))]
+        public async Task<ActionResult<string>> GetCurrentUser()
+        {
+            //TODO: Authorization check. Is the user an admin?
+            return "current user";
         }
 
         // GET: api/Users/5
