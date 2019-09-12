@@ -1,17 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using AutoMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Versioning;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using ScarlettBeautyLab.Filters;
+using ScarlettBeautyLab.Infrastructure;
+using ScarlettBeautyLab.Models;
+using ScarlettBeautyLab.Services;
 
 namespace ScarlettBeautyLab
 {
@@ -27,6 +29,19 @@ namespace ScarlettBeautyLab
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddScoped<IUserService, DefaultUserService>();
+
+            services.AddDbContext<BeautyLabDbContext>(
+                options =>
+                {
+                    options.UseInMemoryDatabase("beautyLabDb");
+                });
+            // Add ASP.NET Core Identity
+            AddIdentityCoreServices(services);
+
+            services.AddAutoMapper(
+                options => options.AddProfile<MappingProfile>(), typeof(Startup));
+
             services
                 .AddMvc(options => {
                     options.Filters.Add<JsonExceptionFilter>();
@@ -59,6 +74,20 @@ namespace ScarlettBeautyLab
 
             app.UseHttpsRedirection();
             app.UseMvc();
+        }
+
+
+        private static void AddIdentityCoreServices(IServiceCollection services)
+        {
+            var builder = services.AddIdentityCore<UserEntity>();
+            builder = new IdentityBuilder(builder.UserType,
+                                        typeof(UserRoleEntity),
+                                        builder.Services);
+
+            builder.AddRoles<UserRoleEntity>()
+                .AddEntityFrameworkStores<BeautyLabDbContext>()
+                .AddDefaultTokenProviders()
+                .AddSignInManager<SignInManager<UserEntity>>();
         }
     }
 }
