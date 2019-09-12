@@ -35,9 +35,21 @@ namespace ScarlettBeautyLab.Controllers
         }
 
         // POST: api/Users
-        [HttpPost]
-        public void Post([FromBody] string value)
+        [HttpPost(Name = nameof(RegisterUser))]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(201)]
+        public async Task<IActionResult> RegisterUser([FromBody] RegisterForm form)
         {
+            var (succeeded, message) = await _userService.CreateUserAsync(form);
+            if (succeeded) return Created(
+                Url.Link(nameof(UsersController.GetVisibleUsers), null), //TODO: link to userino
+                null);
+
+            return BadRequest(new ApiError
+            {
+                Message = "Registration failed.",
+                Detail = message
+            });
         }
 
         // PUT: api/Users/5

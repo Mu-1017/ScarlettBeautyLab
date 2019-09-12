@@ -22,9 +22,36 @@ namespace ScarlettBeautyLab.Services
             _mappingConfiguration = mappingConfiguration;
         }
 
-        public Task<(bool Succeeded, string ErrorMessage)> CreateUserAsync(RegisterForm form)
+        public async Task<(bool Succeeded, string ErrorMessage)> CreateUserAsync(RegisterForm form)
         {
-            throw new NotImplementedException();
+            var entity = new UserEntity
+            {
+                Email = form.Email,
+                UserName = form.Email,
+                FirstName = form.FirstName,
+                LastName = form.LastName,
+                Birthday = form.Birthday
+            };
+
+            var result = await _userManager.CreateAsync(entity, form.Password);
+            if (!result.Succeeded)
+            {
+                var firstError = result.Errors.FirstOrDefault()?.Description;
+                return (false, firstError);
+            }
+
+            return (true, null);
+        }
+
+        public async Task<List<User>> GetUsersAsync()
+        {
+            IQueryable<UserEntity> query = _userManager.Users;
+
+            var items = await query.ProjectTo<User>(_mappingConfiguration)
+                .ToListAsync();
+
+            return items;
+
         }
 
         public Task<User> GetUserAsync(ClaimsPrincipal user)
@@ -40,17 +67,6 @@ namespace ScarlettBeautyLab.Services
         public Task<Guid?> GetUserIdAsync(ClaimsPrincipal principal)
         {
             throw new NotImplementedException();
-        }
-
-        public async Task<List<User>> GetUsersAsync()
-        {
-            IQueryable<UserEntity> query = _userManager.Users;
-
-            var items = await query.ProjectTo<User>(_mappingConfiguration)
-                .ToListAsync();
-
-            return items;
-            
         }
     }
 }

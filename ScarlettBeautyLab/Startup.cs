@@ -14,6 +14,9 @@ using ScarlettBeautyLab.Filters;
 using ScarlettBeautyLab.Infrastructure;
 using ScarlettBeautyLab.Models;
 using ScarlettBeautyLab.Services;
+using AspNet.Security.OpenIdConnect.Primitives;
+using OpenIddict.Validation;
+using System;
 
 namespace ScarlettBeautyLab
 {
@@ -35,7 +38,11 @@ namespace ScarlettBeautyLab
                 options =>
                 {
                     options.UseInMemoryDatabase("beautyLabDb");
+                    options.UseOpenIddict<Guid>();
                 });
+
+            AddOpenIddictService(services);
+
             // Add ASP.NET Core Identity
             AddIdentityCoreServices(services);
 
@@ -43,7 +50,8 @@ namespace ScarlettBeautyLab
                 options => options.AddProfile<MappingProfile>(), typeof(Startup));
 
             services
-                .AddMvc(options => {
+                .AddMvc(options =>
+                {
                     options.Filters.Add<JsonExceptionFilter>();
                     options.Filters.Add<RequireHttpsOrCloseAttribute>();
                 })
@@ -72,10 +80,41 @@ namespace ScarlettBeautyLab
                 app.UseHsts();
             }
 
-            app.UseHttpsRedirection();
+            app.UseAuthentication();
             app.UseMvc();
         }
 
+        private static void AddOpenIddictService(IServiceCollection services)
+        {
+            services.AddOpenIddict()
+                            .AddCore(options =>
+                            {
+                                options.UseEntityFrameworkCore()
+                                .UseDbContext<BeautyLabDbContext>()
+                                .ReplaceDefaultEntities<Guid>();
+                            })
+                            .AddServer(options =>
+                            {
+                                options.UseMvc();
+                                options.EnableTokenEndpoint("/api/token");
+                                options.AllowPasswordFlow();
+                                options.AcceptAnonymousClients();
+                            })
+                            .AddValidation();
+
+            // ASP.NET Core Identity should use the same claim names as OpenIddict
+            services.Configure<IdentityOptions>(options =>
+            {
+                options.ClaimsIdentity.UserNameClaimType = OpenIdConnectConstants.Claims.Name;
+                options.ClaimsIdentity.UserIdClaimType = OpenIdConnectConstants.Claims.Subject;
+                options.ClaimsIdentity.RoleClaimType = OpenIdConnectConstants.Claims.Role;
+            });
+
+            services.AddAuthentication(options =>
+            {
+                options.DefaultScheme = OpenIddictValidationDefaults.AuthenticationScheme;
+            });
+        }
 
         private static void AddIdentityCoreServices(IServiceCollection services)
         {
