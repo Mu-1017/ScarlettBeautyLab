@@ -39,10 +39,25 @@ namespace ScarlettBeautyLab
             };
 
             await userManager.CreateAsync(user, "Supersecret123!!");
-
             // Put the user in the admin role
             await userManager.AddToRoleAsync(user, "Admin");
             await userManager.UpdateAsync(user);
+
+            // Add a test user
+            var guest = new UserEntity
+            {
+                Email = "guest@beautylab.local",
+                UserName = "guest@beautylab.local",
+                FirstName = "Guest",
+                LastName = "Tester",
+                Birthday = DateTime.UtcNow
+            };
+
+            await userManager.CreateAsync(guest, "Supersecret123!!");
+            // Put the user in the admin role
+            await userManager.AddToRoleAsync(guest, "Guest");
+            await userManager.UpdateAsync(guest);
+
         }
     }
 }

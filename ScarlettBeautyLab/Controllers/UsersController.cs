@@ -15,26 +15,48 @@ namespace ScarlettBeautyLab.Controllers
     public class UsersController : ControllerBase
     {
         private readonly IUserService _userService;
+        private readonly IAuthorizationService _authorizationService;
 
-        public UsersController(IUserService userService)
+        public UsersController(IUserService userService, IAuthorizationService authorizationService)
         {
             this._userService = userService;
+            this._authorizationService = authorizationService;
         }
         // GET: api/Users
+        [Authorize]
         [HttpGet(Name = nameof(GetVisibleUsers))]
         public async Task<ActionResult<List<User>>> GetVisibleUsers()
         {
-            //TODO: Authorization check. Is the user an admin?
-            var users = await _userService.GetUsersAsync();
-            return users;
+            if(User.Identity.IsAuthenticated)
+            {
+                var canSeeEveryone = await _authorizationService.AuthorizeAsync(User, "ViewAllUsersPolicy");
+                if (canSeeEveryone.Succeeded)
+                {
+                    //Admin
+                    return await _userService.GetUsersAsync();
+                }
+                else
+                {
+                    //Guest
+                    var users = new List<User>();
+                    var user = await _userService.GetUserAsync(User);
+                    users.Add(user);
+                    return users;
+
+                }
+            }
+
+            return BadRequest(new OpenIdConnectResponse
+            {
+                Error = OpenIdConnectConstants.Errors.InvalidGrant,
+                ErrorDescription = "The user is not logged in."
+            });
         }
 
         [HttpGet("currentuser")]
         [ProducesResponseType(401)]
         public async Task<ActionResult<User>> GetCurrentUser()
         {
-            //TODO: Authorization check. Is the user an admin?
-
             var user = await _userService.GetUserAsync(User);
             if(user == null)
             {
