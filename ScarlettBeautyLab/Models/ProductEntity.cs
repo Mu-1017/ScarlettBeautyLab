@@ -12,8 +12,8 @@ namespace ScarlettBeautyLab.Models
         public Guid Id { get; set; }
         public string Name { get; set; }
         public int Price { get; set; }
-        public List<SkinAgeGroups> ForAgeGroups { get; set; }
-        public List<SkinTypes> ForSkinTypes { get; set; }
+        public SkinAgeGroups ForAgeGroups { get; set; }
+        public SkinTypes ForSkinTypes { get; set; }
 
         [ForeignKey(nameof(ImageEntity))]
         public Guid ImageId { get; set; }

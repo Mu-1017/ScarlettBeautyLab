@@ -13,10 +13,16 @@ namespace ScarlettBeautyLab.Controllers
     [ApiController]
     public class BrandsController : ControllerBase
     {
-        [HttpGet(Name = nameof(GetAllBrands))]
-        public ActionResult<List<BrandEntity>> GetAllBrands(BeautyLabDbContext context)
+        private readonly BeautyLabDbContext _context;
+
+        public BrandsController(BeautyLabDbContext context)
         {
-            var brands = context.Brands.ToList();
+            this._context = context;
+        }
+        [HttpGet(Name = nameof(GetAllBrands))]
+        public ActionResult<List<BrandEntity>> GetAllBrands()
+        {
+            var brands = _context.Brands.ToList();
 
             return brands;
         }

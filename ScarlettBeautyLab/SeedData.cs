@@ -70,7 +70,7 @@ namespace ScarlettBeautyLab
                 UserName = "guest@beautylab.local",
                 Nickname = "Guest",
                 AgeGroup = SkinAgeGroups.LateTeen,
-                SkinType = SkinTypes.Oily
+                SkinType = SkinTypes.Oily|SkinTypes.Sensitive
             };
 
             await userManager.CreateAsync(guest, "Supersecret123!!");
