@@ -5,7 +5,8 @@ using System.Threading.Tasks;
 
 namespace ScarlettBeautyLab.Models
 {
-    public enum SkinAgeGroups
+    [Flags]
+    public enum SkinAgeGroups: byte
     {
         LateTeen,
         Mid20s,
@@ -14,7 +15,8 @@ namespace ScarlettBeautyLab.Models
         Aged
     }
 
-    public enum SkinTypes
+    [Flags]
+    public enum SkinTypes: byte
     {
         Normal,
         Dry,

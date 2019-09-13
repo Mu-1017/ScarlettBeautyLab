@@ -28,9 +28,9 @@ namespace ScarlettBeautyLab.Services
             {
                 Email = form.Email,
                 UserName = form.Email,
-                FirstName = form.FirstName,
-                LastName = form.LastName,
-                Birthday = form.Birthday
+                Nickname = form.Nickname,
+                AgeGroup = form.AgeGroup,
+                SkinType = form.SkinType
             };
 
             var result = await _userManager.CreateAsync(entity, form.Password);

@@ -22,17 +22,15 @@ namespace ScarlettBeautyLab.Models
         [Required]
         [MinLength(1)]
         [MaxLength(100)]
-        [Display(Name = "firstname", Description = "First Name")]
-        public string FirstName { get; set; }
+        [Display(Name = "nickname", Description = "Nickname")]
+        public string Nickname { get; set; }
 
         [Required]
-        [MinLength(1)]
-        [MaxLength(100)]
-        [Display(Name = "lastname", Description = "Last Name")]
-        public string LastName { get; set; }
+        [Display(Name = "agegroup", Description = "Skin age group")]
+        public SkinAgeGroups AgeGroup { get; set; }
 
         [Required]
-        [Display(Name = "birthday", Description = "Birthday")]
-        public DateTimeOffset Birthday { get; set; }
+        [Display(Name = "skintype", Description = "Skin type")]
+        public SkinTypes SkinType { get; set; }
     }
 }

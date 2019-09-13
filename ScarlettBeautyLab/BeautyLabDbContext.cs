@@ -13,5 +13,22 @@ namespace ScarlettBeautyLab
         public BeautyLabDbContext(DbContextOptions options) : base(options)
         {
         }
+
+        public DbSet<ImageEntity> Images { get; set; }
+        public DbSet<BrandEntity> Brands { get; set; }
+        public DbSet<ProductEntity> Products { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<UserEntity>()
+                .Property(c => c.AgeGroup)
+                .HasConversion<string>();
+
+            modelBuilder.Entity<UserEntity>()
+                .Property(c => c.SkinType)
+                .HasConversion<string>();
+
+            base.OnModelCreating(modelBuilder);
+        }
     }
 }
