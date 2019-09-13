@@ -54,9 +54,12 @@ namespace ScarlettBeautyLab.Services
 
         }
 
-        public Task<User> GetUserAsync(ClaimsPrincipal user)
+        public async Task<User> GetUserAsync(ClaimsPrincipal user)
         {
-            throw new NotImplementedException();
+            var entity = await _userManager.GetUserAsync(user);
+            var mapper = _mappingConfiguration.CreateMapper();
+
+            return mapper.Map<User>(entity);
         }
 
         public Task<User> GetUserByIdAsync(Guid userId)

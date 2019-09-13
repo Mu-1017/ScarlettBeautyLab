@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AspNet.Security.OpenIdConnect.Primitives;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ScarlettBeautyLab.Models;
@@ -28,12 +29,23 @@ namespace ScarlettBeautyLab.Controllers
             return users;
         }
 
-        [Authorize]
-        [HttpGet("api/[controller]/currentuser", Name = nameof(GetCurrentUser))]
-        public async Task<ActionResult<string>> GetCurrentUser()
+        [HttpGet("currentuser")]
+        [ProducesResponseType(401)]
+        public async Task<ActionResult<User>> GetCurrentUser()
         {
             //TODO: Authorization check. Is the user an admin?
-            return "current user";
+
+            var user = await _userService.GetUserAsync(User);
+            if(user == null)
+            {
+                return BadRequest(new OpenIdConnectResponse
+                {
+                    Error = OpenIdConnectConstants.Errors.InvalidGrant,
+                    ErrorDescription = "The user does not exist."
+                });
+            }
+
+            return user;
         }
 
         // GET: api/Users/5
@@ -51,7 +63,7 @@ namespace ScarlettBeautyLab.Controllers
         {
             var (succeeded, message) = await _userService.CreateUserAsync(form);
             if (succeeded) return Created(
-                Url.Link(nameof(UsersController.GetVisibleUsers), null), //TODO: link to userino
+                Url.Link(nameof(UsersController.GetVisibleUsers), null), //TODO: link to userinfo
                 null);
 
             return BadRequest(new ApiError
