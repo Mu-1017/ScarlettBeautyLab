@@ -13,10 +13,20 @@ namespace ScarlettBeautyLab.Controllers
     public class RootController : ControllerBase
     {
         // GET: api/
-        [HttpGet]
-        public IEnumerable<string> Get()
+        [HttpGet(Name = nameof(GetRoot))]
+        [ProducesResponseType(200)]
+        public IActionResult GetRoot()
         {
-            return new string[] { "value3", "value4" };
+            var response = new
+            {
+                href = Url.Link(nameof(GetRoot), null),
+                info = new
+                {
+                    href = Url.Link(nameof(InfoController.GetInfo), null)
+                }
+            };
+
+            return Ok(response);
         }
     }
 }
